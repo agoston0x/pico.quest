@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pico.quest - Pixel Adventure Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@privy-io/react-auth@1.67.0/lib/index.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'pixel': ['"Press Start 2P"', 'monospace'],
+                    },
+                    colors: {
+                        'pixel': {
+                            'red': '#FF6B6B',
+                            'orange': '#FFB347',
+                            'yellow': '#FFD93D',
+                            'green': '#6BCF7F',
+                            'blue': '#4ECDC4',
+                            'purple': '#A8E6CF',
+                            'pink': '#FFB6C1',
+                            'dark': '#2C3E50',
+                            'light': '#FFEAA7',
+                        }
+                    },
+                    animation: {
+                        'logo-drop': 'logoDrop 1.5s ease-out forwards',
+                        'logo-bounce': 'logoBounce 1s ease-out 1.5s forwards',
+                    },
+                    boxShadow: {
+                        'pixel': '4px 4px 0 rgba(0,0,0,0.8)',
+                        'pixel-lg': '8px 8px 0 rgba(0,0,0,0.8)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white min-h-screen overflow-hidden relative">
+    <!-- Landing Content -->
+    <div class="min-h-screen flex items-center justify-center">
+        <!-- Animated Logo -->
+        <div id="logo-container" class="text-center animate-logo-drop">
+            <div class="flex items-center justify-center space-x-4 mb-12 relative">
+                <!-- Large Pixel Logo -->
+                <div class="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 relative">
+                    <div class="absolute inset-0 bg-pixel-dark border-4 sm:border-6 md:border-8 border-pixel-dark"></div>
+                    <div class="absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-pixel-yellow"></div>
+                    <div class="absolute bottom-0 left-0 w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 bg-pixel-green"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="font-pixel text-pixel-yellow text-3xl sm:text-4xl md:text-6xl z-10">P</span>
+                    </div>
+                    
+                </div>
+                
+                <!-- Large Text -->
+                <div class="text-left">
+                    <div class="font-pixel text-pixel-dark text-3xl sm:text-4xl md:text-6xl leading-tight tracking-tighter">pico<span class="-ml-1">.</span></div>
+                    <div class="font-pixel text-pixel-dark text-3xl sm:text-4xl md:text-6xl leading-tight tracking-tighter">ques<span class="-ml-1">t</span></div>
+                </div>
+            </div>
+            
+            <!-- Sign In CTA -->
+            <div id="sign-in-cta" class="hidden text-center transform translate-y-8 opacity-0 transition-all duration-500">
+                <button id="sign-in-btn" class="bg-pixel-green text-white px-8 py-4 border-4 border-pixel-dark shadow-pixel-lg font-pixel text-lg hover:bg-pixel-blue transition-colors">
+                    SIGN IN
+                </button>
+                <p class="font-pixel text-pixel-dark text-xs mt-4">Start your pixel adventure</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Hearts -->
+    <div id="hearts-container" class="fixed inset-0 pointer-events-none z-0"></div>
+    
+    <!-- White gradient mask at top and middle -->
+    <div class="fixed top-0 left-0 w-full h-64 bg-gradient-to-b from-white via-white to-transparent pointer-events-none z-10"></div>
+
+    <style>
+        @keyframes logoDrop {
+            0% { 
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+            60% { 
+                transform: translateY(20px);
+                opacity: 1;
+            }
+            80% { 
+                transform: translateY(-10px);
+            }
+            90% { 
+                transform: translateY(5px);
+            }
+            100% { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes logoBounce {
+            0% {
+                transform: translateY(0);
+            }
+            20% {
+                transform: translateY(-30px);
+            }
+            35% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+            65% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh);
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+        }
+        
+        .floating-heart {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            animation: floatUp 12s linear infinite;
+            z-index: -10;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="0" y="0" width="32" height="32" fill="none"/><rect x="6" y="6" width="4" height="4" fill="black"/><rect x="10" y="6" width="4" height="4" fill="black"/><rect x="18" y="6" width="4" height="4" fill="black"/><rect x="22" y="6" width="4" height="4" fill="black"/><rect x="2" y="10" width="4" height="4" fill="black"/><rect x="6" y="10" width="4" height="4" fill="black"/><rect x="10" y="10" width="4" height="4" fill="black"/><rect x="14" y="10" width="4" height="4" fill="black"/><rect x="18" y="10" width="4" height="4" fill="black"/><rect x="22" y="10" width="4" height="4" fill="black"/><rect x="26" y="10" width="4" height="4" fill="black"/><rect x="2" y="14" width="4" height="4" fill="black"/><rect x="6" y="14" width="4" height="4" fill="black"/><rect x="10" y="14" width="4" height="4" fill="black"/><rect x="14" y="14" width="4" height="4" fill="black"/><rect x="18" y="14" width="4" height="4" fill="black"/><rect x="22" y="14" width="4" height="4" fill="black"/><rect x="26" y="14" width="4" height="4" fill="black"/><rect x="6" y="18" width="4" height="4" fill="black"/><rect x="10" y="18" width="4" height="4" fill="black"/><rect x="14" y="18" width="4" height="4" fill="black"/><rect x="18" y="18" width="4" height="4" fill="black"/><rect x="22" y="18" width="4" height="4" fill="black"/><rect x="10" y="22" width="4" height="4" fill="black"/><rect x="14" y="22" width="4" height="4" fill="black"/><rect x="18" y="22" width="4" height="4" fill="black"/><rect x="14" y="26" width="4" height="4" fill="black"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        @keyframes sparkle {
+            0% { opacity: 0; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+            100% { opacity: 0; transform: scale(0) rotate(360deg); }
+        }
+        
+        .sparkle-square {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            animation: sparkle 1.5s ease-in-out;
+            z-index: 5;
+        }
+    </style>
+
+    <script>
+        // Placeholder for Privy integration
+        async function signInWithPrivy() {
+            alert('Privy sign-in integration needed. Please use index-react.html for working Privy authentication or provide your Privy App ID.');
+        }
+
+        // Add bounce animation after drop completes (twice)
+        setTimeout(() => {
+            const logo = document.getElementById('logo-container');
+            logo.classList.add('animate-logo-bounce');
+            
+            // Show sign in CTA after bouncing completes
+            setTimeout(() => {
+                showSignInCTA();
+            }, 1000);
+        }, 1500);
+
+        // Create floating hearts (fully distributed)
+        function createFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            
+            // Distribute across full screen width
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDelay = Math.random() * 3 + 's';
+            heart.style.animationDuration = (10 + Math.random() * 4) + 's';
+            
+            document.getElementById('hearts-container').appendChild(heart);
+            
+            // Remove heart after animation
+            setTimeout(() => {
+                if (heart.parentNode) {
+                    heart.parentNode.removeChild(heart);
+                }
+            }, 15000);
+        }
+        
+        // Create sparkle squares everywhere with varied sizes
+        function createSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle-square';
+            
+            // Random color from palette
+            const colors = ['bg-pixel-red', 'bg-pixel-green', 'bg-pixel-yellow', 'bg-pixel-blue', 'bg-pixel-purple', 'bg-pixel-pink'];
+            sparkle.classList.add(colors[Math.floor(Math.random() * colors.length)]);
+            
+            // Random size (small or slightly larger)
+            const size = Math.random() < 0.7 ? '8px' : '12px';
+            sparkle.style.width = size;
+            sparkle.style.height = size;
+            
+            // Position anywhere on screen
+            sparkle.style.left = Math.random() * 100 + 'vw';
+            sparkle.style.top = Math.random() * 100 + 'vh';
+            sparkle.style.animationDelay = Math.random() * 0.5 + 's';
+            
+            document.body.appendChild(sparkle);
+            
+            // Remove sparkle after animation
+            setTimeout(() => {
+                if (sparkle.parentNode) {
+                    sparkle.parentNode.removeChild(sparkle);
+                }
+            }, 1500);
+        }
+        
+        // Spawn hearts continuously (always visible)
+        function startHeartAnimation() {
+            // Create initial heart immediately
+            createFloatingHeart();
+            
+            setInterval(() => {
+                createFloatingHeart();
+            }, 3000);
+        }
+        
+        // Spawn sparkles everywhere with increased frequency
+        function startSparkleAnimation() {
+            setInterval(() => {
+                if (Math.random() < 0.8) {
+                    createSparkle();
+                }
+            }, 400);
+        }
+        
+        // Slide in CTA from below (without moving logo)
+        function showSignInCTA() {
+            const logo = document.getElementById('logo-container');
+            const cta = document.getElementById('sign-in-cta');
+            
+            // Completely stop logo animation
+            logo.style.animation = 'none';
+            logo.style.transform = 'none';
+            logo.classList.remove('animate-logo-drop', 'animate-logo-bounce');
+            
+            // Show and animate CTA
+            cta.classList.remove('hidden');
+            setTimeout(() => {
+                cta.classList.remove('translate-y-8', 'opacity-0');
+                cta.classList.add('translate-y-0', 'opacity-100');
+                
+            }, 100);
+        }
+
+        // Initialize sign in button
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('sign-in-btn').addEventListener('click', signInWithPrivy);
+            
+            // Start floating hearts when logo drops
+            setTimeout(startHeartAnimation, 1500);
+            
+            // Start sparkles after logo drops
+            setTimeout(startSparkleAnimation, 2500);
+        });
+    </script>
+</body>
+</html>

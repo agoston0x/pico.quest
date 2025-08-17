@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore - pico.quest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@privy-io/js-sdk@latest/dist/index.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'pixel': ['"Press Start 2P"', 'monospace'],
+                    },
+                    colors: {
+                        'pixel': {
+                            'red': '#FF6B6B',
+                            'orange': '#FFB347',
+                            'yellow': '#FFD93D',
+                            'green': '#6BCF7F',
+                            'blue': '#4ECDC4',
+                            'purple': '#A8E6CF',
+                            'pink': '#FFB6C1',
+                            'dark': '#2C3E50',
+                            'light': '#FFEAA7',
+                        }
+                    },
+                    animation: {
+                        'slide-in-right': 'slideInRight 0.3s ease-out',
+                        'slide-in-left': 'slideInLeft 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'bounce-in': 'bounceIn 0.4s ease-out',
+                        'pixel-bounce': 'pixelBounce 2s infinite',
+                        'pixel-glow': 'pixelGlow 1.5s ease-in-out infinite alternate',
+                    },
+                    boxShadow: {
+                        'pixel': '4px 4px 0 rgba(0,0,0,0.8)',
+                        'pixel-lg': '8px 8px 0 rgba(0,0,0,0.8)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center justify-between w-full">
+                    <a href="index.html" class="flex items-center space-x-3 sm:space-x-4">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 relative">
+                            <div class="absolute inset-0 bg-pixel-dark border-2 sm:border-4 border-pixel-dark"></div>
+                            <div class="absolute top-0 right-0 w-3 h-3 sm:w-4 sm:h-4 bg-pixel-yellow"></div>
+                            <div class="absolute bottom-0 left-0 w-2 h-2 sm:w-3 sm:h-3 bg-pixel-green"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="font-pixel text-pixel-yellow text-lg sm:text-2xl z-10">P</span>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-pixel text-pixel-dark text-lg sm:text-2xl leading-tight">pico</div>
+                            <div class="font-pixel text-pixel-dark text-lg sm:text-2xl leading-tight">quest</div>
+                        </div>
+                    </a>
+                    <div class="flex items-center space-x-4">
+                        <h1 class="font-pixel text-lg sm:text-2xl text-pixel-dark">EXPLORE</h1>
+                        <a href="index.html" class="bg-pixel-red text-white px-4 py-2 font-pixel text-xs sm:text-sm border-2 border-pixel-dark hover:bg-pixel-orange transition-colors flex items-center space-x-2">
+                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                            <span>BACK</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        
+        <!-- Leaderboard Modal -->
+        <div id="leaderboard-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+            <div class="bg-white border-4 border-pixel-dark shadow-pixel-lg max-w-lg w-full">
+                <div class="bg-pixel-yellow text-pixel-dark px-4 py-3 border-b-4 border-pixel-dark">
+                    <h3 class="font-pixel text-lg text-center">ETHGLOBAL NYC LEADERBOARD</h3>
+                </div>
+                
+                <div class="p-6">
+                    <div class="mb-4 text-center">
+                        <div class="font-pixel text-pixel-dark text-xs mb-2">EXPAND = 1 PT • LIKE = 3 PTS</div>
+                    </div>
+                    
+                    <div id="leaderboard-list" class="space-y-2 mb-6">
+                        <!-- Leaderboard entries will be populated here -->
+                    </div>
+                    
+                    <div class="flex gap-3 justify-center">
+                        <button id="back-to-explore" class="bg-white text-pixel-dark px-4 py-2 border-2 border-pixel-dark font-pixel text-xs hover:bg-gray-100 transition-colors">
+                            BACK
+                        </button>
+                        <button id="join-quest-btn" class="bg-pixel-green text-white px-4 py-2 border-2 border-pixel-dark font-pixel text-xs hover:bg-pixel-blue transition-colors">
+                            JOIN QUEST
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Near You Section -->
+        <section class="mb-12">
+            <div class="flex items-center mb-6">
+                <div class="w-4 h-4 bg-pixel-green mr-3 border-2 border-pixel-dark"></div>
+                <h2 class="font-pixel text-lg sm:text-xl text-pixel-dark">EVENTS NEAR YOU</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Current Event -->
+                <div class="bg-white border-4 border-pixel-dark shadow-pixel hover:shadow-pixel-lg transition-all duration-200 overflow-hidden">
+                    <div class="h-32 bg-gradient-to-br from-pixel-yellow to-pixel-orange relative">
+                        <div class="absolute top-2 right-2 bg-pixel-red text-white px-2 py-1 font-pixel text-xs border-2 border-pixel-dark">
+                            LIVE
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-8 h-8 bg-pixel-dark border-2 border-white animate-pixel-bounce"></div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-pixel text-sm text-pixel-dark mb-2">ETHGLOBAL NEW YORK</h3>
+                        <p class="text-gray-600 text-sm mb-3">Hackathon quest challenges around NYC</p>
+                        <div class="flex items-center text-xs text-gray-500 mb-3">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                            </svg>
+                            Manhattan, NYC
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="bg-pixel-green text-pixel-dark px-2 py-1 font-pixel text-xs border-2 border-pixel-dark">
+                                100 USDC
+                            </span>
+                            <button class="bg-pixel-yellow text-pixel-dark px-3 py-1 font-pixel text-xs border-2 border-pixel-dark hover:bg-pixel-light transition-colors">
+                                JOIN
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Past Events Section -->
+        <section class="mb-12">
+            <div class="flex items-center mb-6">
+                <div class="w-4 h-4 bg-pixel-orange mr-3 border-2 border-pixel-dark"></div>
+                <h2 class="font-pixel text-lg sm:text-xl text-pixel-dark">PAST EVENTS</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Past Event 1 -->
+                <div class="bg-white border-4 border-gray-400 shadow-lg opacity-75 overflow-hidden">
+                    <div class="h-32 bg-gradient-to-br from-gray-300 to-gray-400 relative">
+                        <div class="absolute top-2 right-2 bg-gray-500 text-white px-2 py-1 font-pixel text-xs border-2 border-gray-600">
+                            DONE
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <svg class="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-pixel text-sm text-gray-600 mb-2">ETHGLOBAL PRAGUE</h3>
+                        <p class="text-gray-500 text-sm mb-3">Completed - Web3 builder quests around Prague</p>
+                        <div class="flex items-center text-xs text-gray-400 mb-3">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                            </svg>
+                            Completed Jun 2024
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="bg-gray-400 text-white px-2 py-1 font-pixel text-xs border-2 border-gray-500">
+                                80 USDC
+                            </span>
+                            <button class="bg-gray-300 text-gray-600 px-3 py-1 font-pixel text-xs border-2 border-gray-400">
+                                VIEW
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Past Event 2 -->
+                <div class="bg-white border-4 border-gray-400 shadow-lg opacity-75 overflow-hidden">
+                    <div class="h-32 bg-gradient-to-br from-gray-300 to-gray-400 relative">
+                        <div class="absolute top-2 right-2 bg-gray-500 text-white px-2 py-1 font-pixel text-xs border-2 border-gray-600">
+                            DONE
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <svg class="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-pixel text-sm text-gray-600 mb-2">ETHGLOBAL CANNES</h3>
+                        <p class="text-gray-500 text-sm mb-3">Completed - Blockchain quests on the French Riviera</p>
+                        <div class="flex items-center text-xs text-gray-400 mb-3">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                            </svg>
+                            Completed Jul 2024
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="bg-gray-400 text-white px-2 py-1 font-pixel text-xs border-2 border-gray-500">
+                                120 USDC
+                            </span>
+                            <button class="bg-gray-300 text-gray-600 px-3 py-1 font-pixel text-xs border-2 border-gray-400">
+                                VIEW
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upcoming Events Section -->
+        <section class="mb-12">
+            <div class="flex items-center mb-6">
+                <div class="w-4 h-4 bg-pixel-blue mr-3 border-2 border-pixel-dark animate-pixel-bounce"></div>
+                <h2 class="font-pixel text-lg sm:text-xl text-pixel-dark">UPCOMING EVENTS</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Upcoming Event 1 -->
+                <div class="bg-white border-4 border-pixel-dark shadow-pixel hover:shadow-pixel-lg transition-all duration-200 overflow-hidden">
+                    <div class="h-32 bg-gradient-to-br from-pixel-purple to-pixel-pink relative">
+                        <div class="absolute top-2 right-2 bg-pixel-blue text-white px-2 py-1 font-pixel text-xs border-2 border-pixel-dark">
+                            NOV 2024
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-6 h-6 bg-pixel-yellow border-2 border-pixel-dark animate-pixel-bounce animation-delay-200"></div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-pixel text-sm text-pixel-dark mb-2">ETHGLOBAL BUENOS AIRES</h3>
+                        <p class="text-gray-600 text-sm mb-3">Web3 hackathon quests in Argentina</p>
+                        <div class="flex items-center text-xs text-gray-500 mb-3">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                            </svg>
+                            Buenos Aires, AR
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="bg-pixel-purple text-white px-2 py-1 font-pixel text-xs border-2 border-pixel-dark">
+                                150 USDC
+                            </span>
+                            <button class="bg-pixel-yellow text-pixel-dark px-3 py-1 font-pixel text-xs border-2 border-pixel-dark hover:bg-pixel-light transition-colors">
+                                REGISTER
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Coming Soon: Festivals Section -->
+        <section class="mb-12">
+            <div class="flex items-center mb-6">
+                <div class="w-4 h-4 bg-pixel-pink mr-3 border-2 border-pixel-dark animate-pixel-bounce"></div>
+                <h2 class="font-pixel text-lg sm:text-xl text-pixel-dark">COMING SOON: FESTIVALS</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Festival 1 -->
+                <div class="bg-white border-4 border-pixel-dark shadow-pixel hover:shadow-pixel-lg transition-all duration-200 overflow-hidden opacity-60">
+                    <div class="h-32 bg-gradient-to-br from-pixel-green to-pixel-blue relative">
+                        <div class="absolute top-2 right-2 bg-pixel-pink text-white px-2 py-1 font-pixel text-xs border-2 border-pixel-dark">
+                            SOON
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-7 h-7 bg-pixel-orange border-2 border-pixel-dark animate-pixel-bounce animation-delay-300"></div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-pixel text-sm text-pixel-dark mb-2">SZIGET FESTIVAL</h3>
+                        <p class="text-gray-600 text-sm mb-3">Music festival quests in Budapest</p>
+                        <div class="flex items-center text-xs text-gray-500 mb-3">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                            </svg>
+                            Budapest, Hungary
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="bg-pixel-green text-white px-2 py-1 font-pixel text-xs border-2 border-pixel-dark">
+                                200 USDC
+                            </span>
+                            <button class="bg-pixel-yellow text-pixel-dark px-3 py-1 font-pixel text-xs border-2 border-pixel-dark hover:bg-pixel-light transition-colors">
+                                VIEW
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Festival 2 -->
+                <div class="bg-white border-4 border-pixel-dark shadow-pixel hover:shadow-pixel-lg transition-all duration-200 overflow-hidden opacity-60">
+                    <div class="h-32 bg-gradient-to-br from-pixel-orange to-pixel-red relative">
+                        <div class="absolute top-2 right-2 bg-pixel-pink text-white px-2 py-1 font-pixel text-xs border-2 border-pixel-dark">
+                            SOON
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-5 h-5 bg-pixel-blue border-2 border-pixel-dark animate-pixel-bounce animation-delay-400"></div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-pixel text-sm text-pixel-dark mb-2">INOTA FESTIVAL</h3>
+                        <p class="text-gray-600 text-sm mb-3">Electronic music festival adventures</p>
+                        <div class="flex items-center text-xs text-gray-500 mb-3">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                            </svg>
+                            Inota, Hungary
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="bg-pixel-orange text-white px-2 py-1 font-pixel text-xs border-2 border-pixel-dark">
+                                180 USDC
+                            </span>
+                            <button class="bg-pixel-yellow text-pixel-dark px-3 py-1 font-pixel text-xs border-2 border-pixel-dark hover:bg-pixel-light transition-colors">
+                                VIEW
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Create Quest CTA -->
+        <section class="text-center py-12">
+            <div class="bg-white border-4 border-pixel-dark shadow-pixel-lg p-8 max-w-md mx-auto">
+                <div class="w-16 h-16 bg-pixel-yellow border-4 border-pixel-dark mx-auto mb-4 flex items-center justify-center animate-pixel-bounce">
+                    <span class="font-pixel text-pixel-dark text-xl">+</span>
+                </div>
+                <h3 class="font-pixel text-lg text-pixel-dark mb-4">CREATE A QUEST</h3>
+                <p class="text-gray-600 text-sm mb-6">Design your own adventure for others to discover</p>
+                <a href="sponsor.html" class="bg-pixel-green text-white px-6 py-3 font-pixel text-sm border-4 border-pixel-dark shadow-pixel hover:bg-pixel-blue transition-colors inline-block">
+                    START CREATING
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <style>
+        /* Custom animations */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pixelBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+        
+        @keyframes pixelGlow {
+            0% {
+                text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            }
+            100% {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 211, 61, 0.6);
+            }
+        }
+        
+        /* Animation delays */
+        .animation-delay-100 {
+            animation-delay: 0.1s;
+        }
+        .animation-delay-200 {
+            animation-delay: 0.2s;
+        }
+        .animation-delay-300 {
+            animation-delay: 0.3s;
+        }
+        .animation-delay-400 {
+            animation-delay: 0.4s;
+        }
+        
+        /* Touch-friendly interactions */
+        @media (hover: none) and (pointer: coarse) {
+            .hover\:scale-105:hover {
+                transform: none;
+            }
+            
+            .hover\:shadow-md:hover {
+                box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.06);
+            }
+        }
+        
+        /* Disable text selection on interactive elements */
+        button, .card {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Custom focus styles for accessibility */
+        button:focus-visible, 
+        input:focus-visible,
+        select:focus-visible {
+            outline: 2px solid #4f46e5;
+            outline-offset: 2px;
+        }
+    </style>
+    
+    <script>
+        // Initialize Privy
+        let privyAuth = null;
+        let user = null;
+        
+        async function initPrivy() {
+            try {
+                // Initialize Privy client
+                privyAuth = window.Privy.createPrivyAuth({
+                    appId: 'clz2wx7zq0005fzjr9q0qy3dn', // Replace with your actual Privy App ID
+                    config: {
+                        embeddedWallets: {
+                            createOnLogin: 'users-without-wallets',
+                        },
+                        appearance: {
+                            theme: 'light',
+                            accentColor: '#6BCF7F',
+                        }
+                    }
+                });
+                
+                console.log('Privy initialized successfully');
+                return privyAuth;
+            } catch (error) {
+                console.error('Failed to initialize Privy:', error);
+                return null;
+            }
+        }
+        
+        async function checkAuthStatus() {
+            if (!privyAuth) {
+                privyAuth = await initPrivy();
+            }
+            
+            if (!privyAuth) {
+                window.location.href = 'index.html';
+                return false;
+            }
+            
+            try {
+                // Check if user is authenticated
+                user = privyAuth.user;
+                
+                if (!user) {
+                    alert('Please sign in first to access quests!');
+                    window.location.href = 'index.html';
+                    return false;
+                }
+                
+                console.log('User authenticated:', user);
+                console.log('Embedded wallet:', user.wallet?.address);
+                console.log('7702 Account Abstraction active - auto-signing enabled');
+                
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = 'index.html';
+                return false;
+            }
+        }
+        
+        async function executeQuestTransaction(action, questId) {
+            try {
+                if (!user?.wallet) {
+                    throw new Error('No wallet available');
+                }
+                
+                console.log(`Auto-executing ${action} transaction with 7702...`);
+                
+                // Here you would integrate with your smart contract
+                // For now, mock the transaction
+                const txHash = `0x${Math.random().toString(16).substr(2, 8)}`;
+                console.log('Transaction hash:', txHash);
+                
+                return txHash;
+            } catch (error) {
+                console.error('Transaction failed:', error);
+                throw error;
+            }
+        }
+
+        // Leaderboard data
+        const leaderboardData = [
+            { name: 'alice.eth', expands: 45, likes: 12, total: 81 },
+            { name: 'bob_crypto', expands: 38, likes: 15, total: 83 },
+            { name: 'carol.base', expands: 52, likes: 8, total: 76 },
+            { name: 'dave_dev', expands: 29, likes: 18, total: 83 },
+            { name: 'eve.optimism', expands: 41, likes: 11, total: 74 },
+            { name: 'frank_eth', expands: 35, likes: 16, total: 83 },
+            { name: 'grace.polygon', expands: 47, likes: 9, total: 74 },
+            { name: 'hank_hodl', expands: 33, likes: 14, total: 75 }
+        ].sort((a, b) => b.total - a.total);
+
+        function showLeaderboard() {
+            const modal = document.getElementById('leaderboard-modal');
+            const list = document.getElementById('leaderboard-list');
+            
+            // Populate leaderboard
+            list.innerHTML = leaderboardData.map((player, index) => `
+                <div class="flex items-center justify-between p-3 ${index === 0 ? 'bg-pixel-yellow' : index === 1 ? 'bg-pixel-orange' : index === 2 ? 'bg-pixel-pink' : 'bg-gray-100'} border-2 border-pixel-dark">
+                    <div class="flex items-center space-x-3">
+                        <span class="font-pixel text-pixel-dark text-xs w-6">#${index + 1}</span>
+                        <span class="font-pixel text-pixel-dark text-xs">${player.name}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-pixel text-pixel-green text-xs">${player.expands}e</span>
+                        <span class="font-pixel text-gray-600 text-xs">${player.likes}♥️</span>
+                    </div>
+                    <span class="font-pixel text-pixel-dark text-xs">${player.total}pts</span>
+                </div>
+            `).join('');
+            
+            modal.classList.remove('hidden');
+        }
+
+        function hideLeaderboard() {
+            document.getElementById('leaderboard-modal').classList.add('hidden');
+        }
+
+        // Page ready for testing
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Explore page loaded for testing');
+            
+            // Setup JOIN button for EthGlobal New York
+            const joinButton = document.querySelector('button[class*="bg-pixel-yellow"]');
+            if (joinButton && joinButton.textContent.includes('JOIN')) {
+                joinButton.addEventListener('click', function() {
+                    showLeaderboard();
+                });
+            }
+            
+            // Setup leaderboard buttons
+            document.getElementById('back-to-explore').addEventListener('click', hideLeaderboard);
+            document.getElementById('join-quest-btn').addEventListener('click', function() {
+                window.location.href = 'quest.html';
+            });
+            
+            // Setup festival VIEW buttons
+            const viewButtons = document.querySelectorAll('button');
+            viewButtons.forEach(btn => {
+                if (btn.textContent.includes('VIEW')) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        console.log('VIEW button clicked');
+                        
+                        const festivalCard = btn.closest('.bg-white').querySelector('h3');
+                        if (festivalCard) {
+                            const festivalName = festivalCard.textContent;
+                            console.log('Festival name:', festivalName);
+                            
+                            if (festivalName.includes('SZIGET')) {
+                                window.location.href = 'view.html?event=sziget';
+                            } else if (festivalName.includes('INOTA')) {
+                                window.location.href = 'view.html?event=inota';
+                            } else if (festivalName.includes('CANNES')) {
+                                window.location.href = 'view.html?event=ethglobal-cannes';
+                            } else if (festivalName.includes('PRAGUE')) {
+                                window.location.href = 'view.html?event=ethglobal-prague';
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

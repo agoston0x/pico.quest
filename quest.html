@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest - pico.quest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'pixel': ['"Press Start 2P"', 'monospace'],
+                    },
+                    colors: {
+                        'pixel': {
+                            'red': '#FF6B6B',
+                            'orange': '#FFB347',
+                            'yellow': '#FFD93D',
+                            'green': '#6BCF7F',
+                            'blue': '#4ECDC4',
+                            'purple': '#A8E6CF',
+                            'pink': '#FFB6C1',
+                            'dark': '#2C3E50',
+                            'light': '#FFEAA7',
+                        }
+                    },
+                    animation: {
+                        'pixel-bounce': 'pixelBounce 2s infinite',
+                        'countdown': 'countdown 1s ease-in-out',
+                        'flash': 'flash 0.3s ease-out',
+                    },
+                    boxShadow: {
+                        'pixel': '4px 4px 0 rgba(0,0,0,0.8)',
+                        'pixel-lg': '8px 8px 0 rgba(0,0,0,0.8)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center justify-between w-full">
+                    <a href="index.html" class="flex items-center space-x-1 sm:space-x-2">
+                        <div class="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 relative">
+                            <div class="absolute inset-0 bg-pixel-dark border-2 sm:border-4 border-pixel-dark"></div>
+                            <div class="absolute top-0 right-0 w-1 h-1 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-pixel-yellow"></div>
+                            <div class="absolute bottom-0 left-0 w-1 h-1 sm:w-2 sm:h-2 md:w-3 md:h-3 bg-pixel-green"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="font-pixel text-pixel-yellow text-xs sm:text-lg md:text-2xl z-10">P</span>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-pixel text-pixel-dark text-xs sm:text-lg md:text-2xl leading-tight">pico</div>
+                            <div class="font-pixel text-pixel-dark text-xs sm:text-lg md:text-2xl leading-tight">quest</div>
+                        </div>
+                    </a>
+                    <div class="flex items-center">
+                        <a href="vote.html" class="bg-pixel-red text-white px-2 py-1 sm:px-3 sm:py-2 font-pixel text-xs border-2 border-pixel-dark hover:bg-pixel-orange transition-colors flex items-center space-x-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                            <span class="hidden sm:inline">VOTE</span>
+                            <span class="sm:hidden">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="min-h-screen bg-white">
+        <!-- Step 1: Countdown Camera -->
+        <div id="step-countdown" class="h-screen flex items-start justify-center pt-8 px-4">
+            <div class="w-full max-w-md bg-white border-4 border-pixel-dark shadow-pixel-lg p-6 sm:p-8 text-center">
+                <h2 class="font-pixel text-pixel-dark text-xl mb-6">GET READY!</h2>
+                
+                <!-- Camera Preview -->
+                <div class="relative bg-gray-200 border-4 border-pixel-dark h-64 mb-6 overflow-hidden">
+                    <video id="camera-feed" class="w-full h-full object-cover" autoplay muted playsinline webkit-playsinline></video>
+                    
+                    <!-- Camera Status Message -->
+                    <div id="camera-status" class="absolute inset-0 flex items-center justify-center bg-gray-200">
+                        <div class="w-40 h-40 animate-pixel-bounce" style="background-image: url('data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;><rect x=&quot;2&quot; y=&quot;8&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;6&quot; y=&quot;8&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;10&quot; y=&quot;8&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;14&quot; y=&quot;8&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;18&quot; y=&quot;8&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;22&quot; y=&quot;8&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;26&quot; y=&quot;8&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;2&quot; y=&quot;12&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;6&quot; y=&quot;12&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;10&quot; y=&quot;12&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;14&quot; y=&quot;12&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;18&quot; y=&quot;12&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;22&quot; y=&quot;12&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;26&quot; y=&quot;12&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;2&quot; y=&quot;16&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;6&quot; y=&quot;16&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;10&quot; y=&quot;16&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;white&quot;/><rect x=&quot;14&quot; y=&quot;16&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;18&quot; y=&quot;16&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;22&quot; y=&quot;16&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;white&quot;/><rect x=&quot;26&quot; y=&quot;16&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;2&quot; y=&quot;20&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;6&quot; y=&quot;20&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;10&quot; y=&quot;20&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;14&quot; y=&quot;20&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;18&quot; y=&quot;20&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;22&quot; y=&quot;20&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;%23666666&quot;/><rect x=&quot;26&quot; y=&quot;20&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;8&quot; y=&quot;24&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;12&quot; y=&quot;24&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;16&quot; y=&quot;24&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/><rect x=&quot;20&quot; y=&quot;24&quot; width=&quot;4&quot; height=&quot;4&quot; fill=&quot;black&quot;/></svg>'); background-size: contain; background-repeat: no-repeat;"></div>
+                    </div>
+                    
+                    <!-- Countdown Numbers -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div id="countdown-3" class="hidden w-20 h-20 bg-pixel-red border-4 border-pixel-dark flex items-center justify-center animate-countdown">
+                            <span class="font-pixel text-white text-2xl">3</span>
+                        </div>
+                        <div id="countdown-2" class="hidden w-20 h-20 bg-pixel-green border-4 border-pixel-dark flex items-center justify-center animate-countdown">
+                            <span class="font-pixel text-white text-2xl">2</span>
+                        </div>
+                        <div id="countdown-1" class="hidden w-20 h-20 bg-pixel-yellow border-4 border-pixel-dark flex items-center justify-center animate-countdown">
+                            <span class="font-pixel text-pixel-dark text-2xl">1</span>
+                        </div>
+                        <div id="camera-flash" class="hidden absolute inset-0 bg-white animate-flash"></div>
+                    </div>
+                </div>
+                
+                <button id="start-camera-btn" class="bg-pixel-yellow text-pixel-dark px-6 py-3 border-4 border-pixel-dark shadow-pixel font-pixel text-sm hover:bg-pixel-light transition-colors">
+                    START
+                </button>
+            </div>
+        </div>
+
+        <!-- Photo Submitted Step -->
+        <div id="photo-submitted" class="hidden h-screen flex items-start justify-center pt-8 px-4">
+            <div class="w-full max-w-md bg-white border-4 border-pixel-dark shadow-pixel-lg p-6 sm:p-8 text-center">
+                <h2 class="font-pixel text-pixel-dark text-xl mb-6">Pict.icio.us!</h2>
+                <div id="captured-photo-container" class="border-4 border-pixel-dark mb-6 overflow-hidden h-64">
+                    <!-- Photo will be inserted here -->
+                </div>
+                <button id="continue-vote-btn" class="bg-pixel-blue text-white px-6 py-3 border-4 border-pixel-dark shadow-pixel font-pixel text-sm hover:bg-pixel-purple transition-colors">
+                    CONTINUE TO VOTE
+                </button>
+                <div id="submitted-status" class="hidden bg-pixel-green text-white px-4 py-2 border-2 border-pixel-dark font-pixel text-xs mt-4">
+                    SUBMITTED
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes pixelBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        @keyframes countdown {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes flash {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+
+    <script>
+        let stream = null;
+        
+        async function startCamera() {
+            console.log('Starting camera...');
+            
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (!navigator.mediaDevices?.getUserMedia) {
+                document.getElementById('start-camera-btn').textContent = 'SKIP CAMERA';
+                document.getElementById('start-camera-btn').onclick = showPhotoSubmitted;
+                return;
+            }
+            
+            try {
+                let constraints = { video: { facingMode: 'environment' } };
+                
+                if (isMobile) {
+                    constraints = {
+                        video: {
+                            facingMode: 'environment',
+                            width: { min: 320, ideal: 640, max: 1920 },
+                            height: { min: 240, ideal: 480, max: 1080 }
+                        }
+                    };
+                }
+                
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                
+                const video = document.getElementById('camera-feed');
+                video.srcObject = stream;
+                video.setAttribute('playsinline', 'true');
+                video.setAttribute('webkit-playsinline', 'true');
+                video.muted = true;
+                video.autoplay = true;
+                
+                video.onloadedmetadata = () => {
+                    video.play().then(() => {
+                        document.getElementById('camera-status').style.display = 'none';
+                        document.getElementById('start-camera-btn').style.display = 'none';
+                        setTimeout(startCountdown, 1000);
+                    }).catch(e => {
+                        document.getElementById('start-camera-btn').textContent = 'TAP TO START';
+                        document.getElementById('start-camera-btn').onclick = () => {
+                            video.play().then(() => {
+                                document.getElementById('camera-status').style.display = 'none';
+                                document.getElementById('start-camera-btn').style.display = 'none';
+                                setTimeout(startCountdown, 1000);
+                            });
+                        };
+                    });
+                };
+                
+            } catch (error) {
+                console.error('Camera failed:', error);
+                document.getElementById('start-camera-btn').textContent = 'SKIP CAMERA';
+                document.getElementById('start-camera-btn').onclick = showPhotoSubmitted;
+            }
+        }
+        
+        function startCountdown() {
+            console.log('Starting countdown...');
+            const countdown3 = document.getElementById('countdown-3');
+            const countdown2 = document.getElementById('countdown-2');
+            const countdown1 = document.getElementById('countdown-1');
+            const flash = document.getElementById('camera-flash');
+            
+            countdown3.classList.remove('hidden');
+            
+            setTimeout(() => {
+                countdown3.classList.add('hidden');
+                countdown2.classList.remove('hidden');
+            }, 1000);
+            
+            setTimeout(() => {
+                countdown2.classList.add('hidden');
+                countdown1.classList.remove('hidden');
+            }, 2000);
+            
+            setTimeout(() => {
+                countdown1.classList.add('hidden');
+                flash.classList.remove('hidden');
+                capturePhoto();
+            }, 3000);
+        }
+        
+        function capturePhoto() {
+            console.log('Capturing photo...');
+            
+            const video = document.getElementById('camera-feed');
+            let photoDataUrl = null;
+            
+            // Try to capture from video
+            if (video && video.videoWidth > 0 && video.videoHeight > 0) {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.drawImage(video, 0, 0);
+                    photoDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    console.log('Photo captured successfully');
+                } catch (error) {
+                    console.error('Photo capture failed:', error);
+                }
+            }
+            
+            // Fallback mock photo
+            if (!photoDataUrl) {
+                photoDataUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNkJDRjdGIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMTAwIiByPSI0MCIgZmlsbD0iI0ZGRDkzRCIvPjxyZWN0IHg9IjE1MCIgeT0iMjAwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRkY2QjZCIi8+PHRleHQgeD0iNTAlIiB5PSI4NSUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMyQzNFNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJib2xkIj5QSVhFTCBTSE9UISEhPC90ZXh0Pjwvc3ZnPg==';
+            }
+            
+            setTimeout(() => {
+                const flash = document.getElementById('camera-flash');
+                if (flash) flash.classList.add('hidden');
+                
+                // Stop camera
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                
+                showPhotoSubmitted(photoDataUrl);
+            }, 300);
+        }
+        
+        function showPhotoSubmitted(photoDataUrl) {
+            console.log('Showing photo submitted with image');
+            
+            // Hide countdown step
+            document.getElementById('step-countdown').classList.add('hidden');
+            
+            // Show photo and insert captured image
+            document.getElementById('captured-photo-container').innerHTML = `<img src="${photoDataUrl}" alt="Captured photo" class="w-full h-auto">`;
+            document.getElementById('photo-submitted').classList.remove('hidden');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('start-camera-btn').addEventListener('click', startCamera);
+            
+            // Handle continue to vote button
+            document.getElementById('continue-vote-btn').addEventListener('click', function() {
+                // Show submitted status
+                document.getElementById('submitted-status').classList.remove('hidden');
+                
+                // Redirect to vote page after showing submitted
+                setTimeout(() => {
+                    window.location.href = 'vote.html';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

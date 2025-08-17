@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote - pico.quest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'pixel': ['"Press Start 2P"', 'monospace'],
+                    },
+                    colors: {
+                        'pixel': {
+                            'red': '#FF6B6B',
+                            'orange': '#FFB347',
+                            'yellow': '#FFD93D',
+                            'green': '#6BCF7F',
+                            'blue': '#4ECDC4',
+                            'purple': '#A8E6CF',
+                            'pink': '#FFB6C1',
+                            'dark': '#2C3E50',
+                            'light': '#FFEAA7',
+                        }
+                    },
+                    animation: {
+                        'pixel-bounce': 'pixelBounce 2s infinite',
+                    },
+                    boxShadow: {
+                        'pixel': '4px 4px 0 rgba(0,0,0,0.8)',
+                        'pixel-lg': '8px 8px 0 rgba(0,0,0,0.8)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center justify-between w-full">
+                    <a href="index.html" class="flex items-center space-x-1 sm:space-x-2">
+                        <div class="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 relative">
+                            <div class="absolute inset-0 bg-pixel-dark border-2 sm:border-4 border-pixel-dark"></div>
+                            <div class="absolute top-0 right-0 w-1 h-1 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-pixel-yellow"></div>
+                            <div class="absolute bottom-0 left-0 w-1 h-1 sm:w-2 sm:h-2 md:w-3 md:h-3 bg-pixel-green"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="font-pixel text-pixel-yellow text-xs sm:text-lg md:text-2xl z-10">P</span>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-pixel text-pixel-dark text-xs sm:text-lg md:text-2xl leading-tight">pico</div>
+                            <div class="font-pixel text-pixel-dark text-xs sm:text-lg md:text-2xl leading-tight">quest</div>
+                        </div>
+                    </a>
+                    <div class="flex items-center">
+                        <a href="quest.html" class="bg-pixel-red text-white px-2 py-1 sm:px-3 sm:py-2 font-pixel text-xs border-2 border-pixel-dark hover:bg-pixel-orange transition-colors flex items-center space-x-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                            <span class="hidden sm:inline">BACK</span>
+                            <span class="sm:hidden">←</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="min-h-screen bg-white">
+        <!-- Gallery View -->
+        <div id="gallery-view" class="h-screen flex flex-col px-4">
+            <div class="w-full max-w-3xl mx-auto flex-1 flex flex-col">
+                <div class="text-center mb-2">
+                    <h2 class="font-pixel text-pixel-dark text-sm mb-1">OTHER PLAYERS' PHOTOS</h2>
+                    <div id="vote-requirement" class="bg-pixel-yellow text-pixel-dark px-3 py-1 border-2 border-pixel-dark font-pixel text-xs inline-block">
+                        ❤️ LIKE AT LEAST 1 PHOTO TO CONTINUE
+                    </div>
+                </div>
+                
+                <!-- 9-tile photo grid -->
+                <div id="photo-grid" class="grid grid-cols-3 gap-1 flex-1">
+                    <!-- Photos will be loaded here -->
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Expanded Photo Modal -->
+        <div id="photo-modal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+            <div class="relative w-full max-w-lg">
+                <!-- Expanded Image Container -->
+                <div id="expanded-photo-container" class="border-4 border-white mb-6 overflow-hidden">
+                    <!-- Expanded photo will be inserted here -->
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex gap-4 justify-center">
+                    <button id="like-btn" class="bg-pixel-red text-white px-6 py-3 border-4 border-white shadow-pixel font-pixel text-sm hover:bg-pixel-pink transition-colors flex items-center space-x-2">
+                        <span>♥</span>
+                        <span>LIKE</span>
+                    </button>
+                    <button id="back-btn" class="bg-white text-pixel-dark px-6 py-3 border-4 border-pixel-dark shadow-pixel font-pixel text-sm hover:bg-gray-100 transition-colors">
+                        BACK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes pixelBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+    </style>
+
+    <script>
+        let hasVoted = false;
+        let currentPhotoIndex = -1;
+        let photos = [];
+
+        // Load photos from EthGlobal NYC folder
+        async function loadPhotos() {
+            console.log('Loading photos from EthGlobal NYC folder...');
+            
+            // Load photos directly from same folder
+            photos = [
+                'IMG_1276.jpeg',
+                'IMG_1279.jpeg',
+                'IMG_1280.jpeg',
+                'IMG_1286.jpeg',
+                'IMG_1341.jpeg',
+                'IMG_1344.jpeg',
+                'IMG_1348.jpeg',
+                'IMG_1349.jpeg',
+                'IMG_1350.jpeg'
+            ];
+            
+            displayPhotoGrid();
+        }
+
+        function displayPhotoGrid() {
+            const grid = document.getElementById('photo-grid');
+            
+            grid.innerHTML = photos.map((photo, index) => `
+                <div class="photo-tile cursor-pointer relative group border-2 border-pixel-dark hover:border-pixel-blue transition-all duration-200" data-index="${index}">
+                    <div class="aspect-square overflow-hidden">
+                        <img src="${photo}" alt="Player photo ${index + 1}" class="w-full h-full object-cover" loading="lazy">
+                    </div>
+                    <div class="photo-overlay absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                        <span class="text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity">👁️</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Add click handlers
+            addPhotoInteractions();
+        }
+
+        function addPhotoInteractions() {
+            document.querySelectorAll('.photo-tile').forEach((tile, index) => {
+                tile.addEventListener('click', () => {
+                    expandPhoto(index);
+                });
+            });
+        }
+
+        function expandPhoto(index) {
+            console.log('Expanding photo', index);
+            currentPhotoIndex = index;
+            
+            // Show expanded photo
+            const container = document.getElementById('expanded-photo-container');
+            container.innerHTML = `<img src="${photos[index]}" alt="Player photo ${index + 1}" class="w-full h-auto">`;
+            
+            // Show modal
+            document.getElementById('photo-modal').classList.remove('hidden');
+            
+            // Update like button
+            document.getElementById('like-btn').onclick = () => likePhoto(index);
+            document.getElementById('back-btn').onclick = closeModal;
+        }
+
+        function likePhoto(index) {
+            console.log('Blockchain call: like photo', index);
+            hasVoted = true;
+            
+            // Mark tile as liked
+            const tile = document.querySelector(`[data-index="${index}"]`);
+            tile.classList.add('border-pixel-red');
+            tile.innerHTML += `
+                <div class="absolute top-1 right-1 w-6 h-6 bg-pixel-red border-2 border-white rounded-full flex items-center justify-center">
+                    <span class="text-white text-xs">♥</span>
+                </div>
+            `;
+            
+            // Close modal and update continue button
+            closeModal();
+            updateVoteRequirement();
+        }
+
+        function closeModal() {
+            document.getElementById('photo-modal').classList.add('hidden');
+            currentPhotoIndex = -1;
+        }
+
+        function updateVoteRequirement() {
+            document.getElementById('vote-requirement').classList.add('hidden');
+            
+            const reqMet = document.createElement('div');
+            reqMet.className = 'bg-pixel-green text-white px-4 py-2 border-2 border-pixel-dark font-pixel text-xs inline-block';
+            reqMet.textContent = '✓ REQUIREMENT MET';
+            document.getElementById('vote-requirement').parentNode.appendChild(reqMet);
+            
+            // Show submission screen after a brief delay
+            setTimeout(() => {
+                showSubmissionScreen();
+            }, 1500);
+        }
+
+        function showSubmissionScreen() {
+            // Hide gallery view
+            document.getElementById('gallery-view').classList.add('hidden');
+            
+            // Create submission screen
+            const submissionScreen = document.createElement('div');
+            submissionScreen.id = 'submission-screen';
+            submissionScreen.className = 'h-screen flex flex-col items-center justify-center px-4';
+            submissionScreen.innerHTML = `
+                <div class="text-center">
+                    <div class="w-24 h-24 bg-pixel-green border-4 border-pixel-dark mx-auto mb-6 flex items-center justify-center animate-pixel-bounce">
+                        <span class="font-pixel text-white text-2xl">✓</span>
+                    </div>
+                    
+                    <h2 class="font-pixel text-pixel-dark text-2xl mb-4">SUBMITTED!</h2>
+                    <p class="font-pixel text-pixel-dark text-sm mb-8">GOOD LUCK!</p>
+                </div>
+            `;
+            
+            // Add to page
+            document.querySelector('.min-h-screen').appendChild(submissionScreen);
+            
+            // Return to explore after 3 seconds
+            setTimeout(() => {
+                window.location.href = 'explore.html';
+            }, 3000);
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Vote page loaded');
+            loadPhotos();
+        });
+    </script>
+</body>
+</html>
